@@ -5,33 +5,33 @@ import { useEffect, useState } from "react";
 type Mode = "focus" | "break";
 type Status = "idle" | "running" | "paused";
 
+const FOCUS_TIME = 0.2 * 60;
+const BREAK_TIME = 0.2 * 60;
+
 export default function Home() {
   const [count, setCount] = useState<number>(0);
-  const [limit, setLimit] = useState<number>(0.2 * 60);
+  const [limit, setLimit] = useState<number>(FOCUS_TIME);
   const [mode, setMode] = useState<Mode>("focus");
   const [status, setStatus] = useState<Status>("idle");
+  const remainingTime = limit - count;
 
-  const getTimeLeft = () => { 
-    const time = limit - count;
-
-    if (time <= 0) {
+  if (remainingTime <= 0) {
       setCount(0);
-      setLimit(5 * 60);
-      setMode("break");
+      setLimit(mode === "focus" ? BREAK_TIME : FOCUS_TIME);
+      setMode(mode === "focus" ? "break" : "focus");
       setStatus("idle");
-    };
+  };
 
-    const minute = Math.floor(time / 60);
-    const second = time % 60;
+  const formatTime = (seconds :number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
 
-    return `${minute.toString().padStart(2,"0")}:${second.toString().padStart(2,"0")}`;
-  }
-    
-  const timeLeft: string = getTimeLeft();
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
 
   const handleReset = () => {
     setCount(0);
-    setLimit(25 * 60);
+    setLimit(mode === "focus" ? FOCUS_TIME : BREAK_TIME);
     setStatus("idle");
   };
 
@@ -53,13 +53,13 @@ export default function Home() {
   
   return (
     <>
-      <h1>{timeLeft}</h1>
+      <h1>{formatTime(remainingTime)}</h1>
       <h2>
         {
           mode === "focus" ?
-            "作業中"
+            "作業モード"
             :
-            "休憩中"
+            "休憩モード"
         }
       </h2>
       {
@@ -73,4 +73,4 @@ export default function Home() {
       }
     </>
   );
-}
+};
