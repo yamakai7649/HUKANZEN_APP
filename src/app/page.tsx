@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 type Mode = "focus" | "break";
 type Status = "idle" | "running" | "paused";
 
-const FOCUS_TIME = 0.2 * 60;
-const BREAK_TIME = 0.2 * 60;
+const FOCUS_TIME = 25 * 60;
+const BREAK_TIME = 5 * 60;
 
 export default function Home() {
   const [count, setCount] = useState<number>(0);
@@ -29,17 +29,25 @@ export default function Home() {
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
+  const handleStartTimer = () => setStatus("running");
+
+  const handleToggleTimer = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setStatus(e.currentTarget.value as Status);
+  };
+
   const handleReset = () => {
     setCount(0);
     setLimit(mode === "focus" ? FOCUS_TIME : BREAK_TIME);
     setStatus("idle");
   };
 
-  const handleStartTimer = () => setStatus("running");
+  const handleSkip = () => {
+    setCount(0);
+    setMode(mode === "focus" ? "break" : "focus");
+    setLimit(mode === "focus" ? BREAK_TIME : FOCUS_TIME);
+    setStatus("idle");
 
-  const handleToggleTimer = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setStatus(e.currentTarget.value as Status);
-  };
+  }
   
   useEffect(() => {
     if (status !== "running") return;
@@ -57,9 +65,15 @@ export default function Home() {
       <h2>
         {
           mode === "focus" ?
-            "作業モード"
+            status === "idle" ?
+              "作業開始"
+              :
+              "作業中"
             :
-            "休憩モード"
+            status === "idle" ?
+              "休憩開始"
+              :
+              "休憩中"
         }
       </h2>
       {
@@ -69,6 +83,7 @@ export default function Home() {
           <>
             <button onClick={handleToggleTimer} value={status === "running" ? "paused" : "running"}>{status === "running" ? "一時停止" : "再生"}</button>
             <button onClick={handleReset}>リセット</button>
+            <button onClick={handleSkip}>スキップ</button>
           </>
       }
     </>
