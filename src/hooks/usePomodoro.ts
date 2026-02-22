@@ -1,9 +1,7 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Mode, Status } from "@/types/timer";
 
-type Mode = "pomodoro" | "shortBreak" | "longBreak";
-type Status =  "running" | "paused";
-
-const POMODORO_TIME = 0.2 * 60;
+const POMODORO_TIME = 1.2 * 60;
 const SHORT_BREAK_TIME = 5 * 60;
 const LONG_BREAK_TIME = 25 * 60;
 
@@ -11,15 +9,8 @@ export const usePomodoro = () => {
     const [count, setCount] = useState<number>(0);
     const [limit, setLimit] = useState<number>(POMODORO_TIME);
     const [mode, setMode] = useState<Mode>("pomodoro");
-    const [status, setStatus] = useState<Status>("paused");
+    const [status, setStatus] = useState<Status>("pending");
     const remainingTime = limit - count;
-    
-    const formatTime = (seconds: number) => {
-        const m = Math.floor(seconds / 60);
-        const s = seconds % 60;
-    
-        return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-    };
     
     const switchMode = (nextMode?: Mode) => {
         const currentMode = nextMode ? nextMode : (mode === "pomodoro" ? "shortBreak" : "pomodoro");
@@ -35,13 +26,17 @@ export const usePomodoro = () => {
         setCount(0);
         setStatus("paused");
     };
-    
-    if (remainingTime <= 0) {
-        switchMode();
+
+    const switchStatus = (nextStatus: Status) => {
+        setStatus(nextStatus);
+    };
+
+    const handleStartEnd = () => {
+        return;
     };
     
     const handleToggleTimer = (e: React.MouseEvent<HTMLButtonElement>) => {
-        setStatus(e.currentTarget.value as Status);
+        switchStatus(e.currentTarget.value as Status);
     };
     
     const handleReset = () => {
@@ -57,6 +52,10 @@ export const usePomodoro = () => {
         switchMode(e.currentTarget.value as Mode);
     };
 
+    if (remainingTime <= 0) {
+        switchMode();
+    };
+
     useEffect(() => {
         if (status !== "running") return;
     
@@ -70,8 +69,8 @@ export const usePomodoro = () => {
     return {
         status,
         setCount,
-        formatTime,
         remainingTime,
+        handleStartEnd,
         handleToggleTimer,
         handleReset,
         handleSkip,
