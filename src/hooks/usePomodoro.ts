@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Mode, Status } from "@/types/timer";
 
-const POMODORO_TIME = 1.2 * 60;
+const POMODORO_TIME = 0.1 * 60;
 const SHORT_BREAK_TIME = 5 * 60;
 const LONG_BREAK_TIME = 25 * 60;
 
@@ -24,27 +24,36 @@ export const usePomodoro = () => {
         setMode(currentMode);
         setLimit(TIME_MAP[currentMode]);
         setCount(0);
-        setStatus("paused");
+        setStatus("pending");
     };
 
     const switchStatus = (nextStatus: Status) => {
         setStatus(nextStatus);
     };
 
-    const handleStartEnd = () => {
-        return;
+    const handleStartTimer = () => {
+        switchStatus("running");
+    };
+
+    const handleEndTimer = () => {
+        switchStatus("pending");
+        switchMode();
     };
     
-    const handleToggleTimer = (e: React.MouseEvent<HTMLButtonElement>) => {
-        switchStatus(e.currentTarget.value as Status);
+    const handleToggleTimer = () => {
+        if (status === "running" || status === "overtime") {
+            switchStatus("paused");
+        } else {
+            switchStatus("running");
+        }
     };
     
-    const handleReset = () => {
+    const handleResetTimer = () => {
         setCount(0);
         setStatus("paused");
     };
     
-    const handleSkip = () => {
+    const handleSkipTimer = () => {
         switchMode();
     };
     
@@ -53,27 +62,34 @@ export const usePomodoro = () => {
     };
 
     if (remainingTime <= 0) {
-        switchMode();
+        if (mode === "pomodoro") {
+            if (status === "running") {
+                switchStatus("overtime");
+            }
+        } else {
+            switchMode();
+        }
     };
 
     useEffect(() => {
-        if (status !== "running") return;
+        if (status !== "running" && status !== "overtime") return;
     
         const timerId = setInterval(() => setCount(prev => prev + 1), 1000);
     
         return () => {
-          clearInterval(timerId);
+            clearInterval(timerId);
         };
-      }, [status, setCount]);
+    }, [status, setCount]);
     
     return {
         status,
         setCount,
         remainingTime,
-        handleStartEnd,
+        handleStartTimer,
+        handleEndTimer,
         handleToggleTimer,
-        handleReset,
-        handleSkip,
+        handleResetTimer,
+        handleSkipTimer,
         handleSwitchMode,
     };
 };

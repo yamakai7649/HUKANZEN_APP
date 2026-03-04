@@ -8,10 +8,11 @@ import { ModeSelector } from "./ModeSelector";
 export const TimerSection = () => {
   const {
     status,
-    handleStartEnd,
+    handleStartTimer,
+    handleEndTimer,
     handleToggleTimer,
-    handleReset,
-    handleSkip,
+    handleResetTimer,
+    handleSkipTimer,
     remainingTime,
     handleSwitchMode,
   } = usePomodoro();
@@ -20,12 +21,13 @@ export const TimerSection = () => {
     <div className="flex flex-col h-full">
       <TimerControls
         status={status}
-        onStartEnd={handleStartEnd}
+        onStartTimer={handleStartTimer}
+        onEndTimer={handleEndTimer}
         onToggleTimer={handleToggleTimer}
-        onReset={handleReset}
-        onSkip={handleSkip}
+        onResetTimer={handleResetTimer}
+        onSkipTimer={handleSkipTimer}
       />
-      <TimerDisplay remainingTime={remainingTime} />
+      <TimerDisplay remainingTime={remainingTime} status={status} />
       <ModeSelector onSwitchMode={handleSwitchMode} />
     </div>
   );

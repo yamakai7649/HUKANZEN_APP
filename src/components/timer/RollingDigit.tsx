@@ -3,16 +3,16 @@ import { useRollingDigit } from "@/hooks/useRollingDigit";
 type RollingDigitProps = {
     digit: string;
     max: number;
+    isCountUp: boolean;
 };
 
-export const RollingDigit = ({ digit, max }: RollingDigitProps) => {
+export const RollingDigit = ({ digit, max, isCountUp }: RollingDigitProps) => {
     const {
         digits,
         isTransitioning,
         currentIndex,
         handleTransitionEnd,
-    } = useRollingDigit(digit, max);
-
+    } = useRollingDigit(digit, max, isCountUp);
 
     return (
         // ★スタイル追加1：はみ出しを隠す「窓枠」を作る（h-[1.2em] と overflow-hidden）
