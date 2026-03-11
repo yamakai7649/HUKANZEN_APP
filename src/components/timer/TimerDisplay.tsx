@@ -1,12 +1,17 @@
 import { RollingDigit } from "./RollingDigit";
 import { Status } from "@/types/timer";
+import { useTimer } from "@/hooks/useTimer";
 
 type TimerDisplayProps = {
-    remainingTime: number;
     status: Status; 
+    startTime: number | null;
+    snapshotTime: number;
+    onTimeUp: () => void;
 };
 
-const splitTimeToDigits = (seconds: number) => {
+const splitTimeToDigits = (milliSeconds: number) => {
+    let seconds = Math.ceil(milliSeconds / 1000);
+
     if (seconds < 0) {
         seconds = seconds * -1;
     }
@@ -22,13 +27,12 @@ const splitTimeToDigits = (seconds: number) => {
     return [m1, m2, s1, s2];
 };
 
-export const TimerDisplay = ({ remainingTime, status }: TimerDisplayProps) => {
+export const TimerDisplay = ({ status, startTime, snapshotTime, onTimeUp }: TimerDisplayProps) => {
+    const remainingTime = useTimer(status, startTime, snapshotTime, onTimeUp);
+    
     const isCountUp: boolean = status === "overtime";
 
-    const m1 = splitTimeToDigits(remainingTime)[0];
-    const m2 = splitTimeToDigits(remainingTime)[1];
-    const s1 = splitTimeToDigits(remainingTime)[2];
-    const s2 = splitTimeToDigits(remainingTime)[3];
+    const [m1, m2, s1, s2] = splitTimeToDigits(remainingTime);
 
     return (
         <div className="flex flex-auto items-center justify-center bg-[#d9c584]">

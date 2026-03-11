@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useRollingDigit } from "@/hooks/useRollingDigit";
 
 type RollingDigitProps = {
@@ -6,7 +7,7 @@ type RollingDigitProps = {
     isCountUp: boolean;
 };
 
-export const RollingDigit = ({ digit, max, isCountUp }: RollingDigitProps) => {
+export const RollingDigit = memo(({ digit, max, isCountUp }: RollingDigitProps) => {
     const {
         digits,
         isTransitioning,
@@ -36,4 +37,6 @@ export const RollingDigit = ({ digit, max, isCountUp }: RollingDigitProps) => {
             </div>
         </div>
     );
-};
+});
+
+RollingDigit.displayName = "RollingDigit";

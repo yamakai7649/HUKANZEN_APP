@@ -8,13 +8,15 @@ import { ModeSelector } from "./ModeSelector";
 export const TimerSection = () => {
   const {
     status,
+    startTime,
+    snapshotTime,
     handleStartTimer,
     handleEndTimer,
     handleToggleTimer,
     handleResetTimer,
     handleSkipTimer,
-    remainingTime,
     handleSwitchMode,
+    handleTimeUp,
   } = usePomodoro();
   
   return (
@@ -27,7 +29,7 @@ export const TimerSection = () => {
         onResetTimer={handleResetTimer}
         onSkipTimer={handleSkipTimer}
       />
-      <TimerDisplay remainingTime={remainingTime} status={status} />
+      <TimerDisplay status={status} startTime={startTime} snapshotTime={snapshotTime} onTimeUp={handleTimeUp} />
       <ModeSelector onSwitchMode={handleSwitchMode} />
     </div>
   );
