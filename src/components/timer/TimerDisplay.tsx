@@ -35,15 +35,15 @@ export const TimerDisplay = ({ status, startTime, snapshotTime, onTimeUp }: Time
     const [m1, m2, s1, s2] = splitTimeToDigits(remainingTime);
 
     return (
-        <div className="flex flex-auto items-center justify-center bg-zinc-900">
-            <div className="flex items-center text-8xl font-bold font-mono text-zinc-100 drop-shadow-lg">
-                <RollingDigit digit={m1} max={6} isCountUp={isCountUp}/>
-                <RollingDigit digit={m2} max={9} isCountUp={isCountUp}/>
-
-                <span className="mx-2 pb-4 text-rose-500">:</span>
-
-                <RollingDigit digit={s1} max={5} isCountUp={isCountUp}/>
-                <RollingDigit digit={s2} max={9} isCountUp={isCountUp}/>
+        <div className="flex flex-auto items-center justify-center bg-[#d9c584]">
+            <div className="flex items-center text-8xl font-bold font-mono text-[#333]">
+                <RollingDigit digit={m1} max={6} isCountUp={isCountUp} />
+                <RollingDigit digit={m2} max={9} isCountUp={isCountUp} />
+                
+                <span className="mx-2 pb-4">:</span>
+                
+                <RollingDigit digit={s1} max={5} isCountUp={isCountUp} />
+                <RollingDigit digit={s2} max={9} isCountUp={isCountUp} />
             </div>
         </div>
     );
