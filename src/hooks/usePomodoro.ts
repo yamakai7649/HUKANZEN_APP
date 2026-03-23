@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Mode, Status } from "@/types/timer";
+import { useSessionRecorder } from "./useSessionRecorder";
 
-const POMODORO_TIME = 0.3 * 60 * 1000;
-const SHORT_BREAK_TIME = 0.2 * 60 * 1000;
+const POMODORO_TIME = 0.2 * 60 * 1000;
+const SHORT_BREAK_TIME = 10 * 60 * 1000;
 const LONG_BREAK_TIME = 25 * 60 * 1000;
 
 export const usePomodoro = () => {
@@ -11,6 +12,7 @@ export const usePomodoro = () => {
     const [snapshotTime, setSnapshotTime] = useState<number>(duration);
     const [mode, setMode] = useState<Mode>("pomodoro");
     const [status, setStatus] = useState<Status>("pending");
+    const recorder = useSessionRecorder();
     
     const switchMode = (nextMode?: Mode) => {
         const currentMode = nextMode ? nextMode : (mode === "pomodoro" ? "shortBreak" : "pomodoro");
@@ -35,10 +37,13 @@ export const usePomodoro = () => {
     const handleStartTimer = () => {
         switchStatus("running");
         setStartTime(Date.now());
+        recorder.onTimerStart(mode);
     };
 
     const handleEndTimer = () => {
-        switchStatus("pending");
+        if (status !== "pending") {
+            recorder.onSessionEnd(mode, "completed");
+        }
         switchMode();
     };
     
@@ -50,20 +55,33 @@ export const usePomodoro = () => {
             }
             setStartTime(null);
             switchStatus("paused");
+            recorder.onTimerPause();
+        } else if (status === "pending") {
+            // 初回スタート
+            switchStatus("running");
+            setStartTime(Date.now());
+            recorder.onTimerStart(mode);
         } else {
             // 再開する時はスタート時間を記録するだけ
             switchStatus("running");
             setStartTime(Date.now());
+            recorder.onTimerResume();
         }
     };
     
     const handleResetTimer = () => {
+        if (status !== "pending") {
+            recorder.onSessionEnd(mode, "reset");
+        }
         setStartTime(null);
         setSnapshotTime(duration); // リセット時は初期値（25分）の写真を残す
         setStatus("pending");
     };
-    
+
     const handleSkipTimer = () => {
+        if (status !== "pending") {
+            recorder.onSessionEnd(mode, "skipped");
+        }
         switchMode();
     };
     
@@ -72,14 +90,18 @@ export const usePomodoro = () => {
     };
 
     const handleTimeUp = () => {
-    if (mode === "pomodoro") {
-        switchStatus("overtime"); // 残業モード突入！
-    } else {
-        switchMode(); // 休憩終わり！次のモードへ
-    }
-};
+        if (mode === "pomodoro") {
+            switchStatus("overtime"); // 残業モード突入！
+            recorder.onOvertimeStart();
+        } else {
+            recorder.onSessionEnd(mode, "completed"); // 休憩完了
+            switchMode(); // 休憩終わり！次のモードへ
+        }
+    };
     
     return {
+        mode,
+        duration,
         status,
         startTime,
         snapshotTime,
