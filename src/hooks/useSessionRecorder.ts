@@ -2,7 +2,7 @@
 
 import { useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { Mode, EndReason, SessionRecord } from "@/types/timer";
+import { Mode, EndReason } from "@/types/timer";
 
 export const useSessionRecorder = () => {
   const sessionStartRef = useRef<Date | null>(null);
@@ -34,39 +34,43 @@ export const useSessionRecorder = () => {
     overtimeStartRef.current = new Date();
   }, []);
 
-  const onSessionEnd = useCallback(async (mode: Mode, endReason: EndReason) => {
-    if (!sessionStartRef.current) return;
+  const onSessionEnd = useCallback(
+    async (mode: Mode, endReason: EndReason, userId: string, goalId: string | null) => {
+      if (!sessionStartRef.current || !userId) return;
 
-    const now = new Date();
+      const now = new Date();
 
-    if (lastResumedAtRef.current) {
-      accumulatedMsRef.current += now.getTime() - lastResumedAtRef.current.getTime();
-    }
+      if (lastResumedAtRef.current) {
+        accumulatedMsRef.current += now.getTime() - lastResumedAtRef.current.getTime();
+      }
 
-    const overtimeMs = overtimeStartRef.current
-      ? now.getTime() - overtimeStartRef.current.getTime()
-      : 0;
+      const overtimeMs = overtimeStartRef.current
+        ? now.getTime() - overtimeStartRef.current.getTime()
+        : 0;
 
-    const record: SessionRecord = {
-      mode,
-      started_at: sessionStartRef.current.toISOString(),
-      ended_at: now.toISOString(),
-      duration_ms: Math.max(0, accumulatedMsRef.current - overtimeMs),
-      overtime_ms: overtimeMs,
-      end_reason: endReason,
-    };
+      const record = {
+        user_id: userId,
+        goal_id: goalId || null,
+        mode,
+        started_at: sessionStartRef.current.toISOString(),
+        ended_at: now.toISOString(),
+        duration_ms: Math.max(0, accumulatedMsRef.current - overtimeMs),
+        overtime_ms: overtimeMs,
+        end_reason: endReason,
+      };
 
-    // リセット
-    sessionStartRef.current = null;
-    lastResumedAtRef.current = null;
-    overtimeStartRef.current = null;
-    accumulatedMsRef.current = 0;
+      sessionStartRef.current = null;
+      lastResumedAtRef.current = null;
+      overtimeStartRef.current = null;
+      accumulatedMsRef.current = 0;
 
-    console.log("[recorder] save:", record);
+      console.log("[recorder] save:", record);
 
-    const { error } = await supabase.from("pomodoro_sessions").insert(record);
-    if (error) console.error("[recorder] failed:", error);
-  }, []);
+      const { error } = await supabase.from("sessions").insert(record);
+      if (error) console.error("[recorder] failed:", error);
+    },
+    []
+  );
 
   return { onTimerStart, onTimerPause, onTimerResume, onOvertimeStart, onSessionEnd };
 };

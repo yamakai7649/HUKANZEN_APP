@@ -13,5 +13,7 @@ export interface SessionRecord {
 
 export interface Session extends SessionRecord {
   id: string;
+  user_id: string;
+  goal_id: string | null;
   created_at: string;
 }
