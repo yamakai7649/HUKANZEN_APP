@@ -18,12 +18,12 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setSubmitting(true);
+    setIsSubmitting(true);
     try {
       const { data: existing } = await supabase
         .from("profiles")
@@ -47,7 +47,7 @@ export default function RegisterPage() {
       const msg = (err as { message?: string })?.message;
       setError(msg || "登録に失敗しました");
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -93,10 +93,10 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={isSubmitting}
             className="mt-4 text-xs tracking-[0.4em] uppercase text-white/40 hover:text-white transition-colors duration-500 disabled:opacity-30"
           >
-            {submitting ? "..." : "REGISTER"}
+            {isSubmitting ? "..." : "REGISTER"}
           </button>
         </form>
 

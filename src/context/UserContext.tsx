@@ -2,41 +2,41 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { User } from "@/types";
+import { Profile } from "@/types";
 
 interface UserContextType {
-  user: User | null;
+  user: Profile | null;
   loading: boolean;
-  unreachable: boolean;
-  setUser: (user: User | null) => void;
+  hasError: boolean;
+  setUser: (user: Profile | null) => void;
 }
 
 const UserContext = createContext<UserContextType>({
   user: null,
   loading: true,
-  unreachable: false,
+  hasError: false,
   setUser: () => {},
 });
 
-async function fetchProfile(userId: string): Promise<User | null> {
+async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", userId)
     .single();
   if (error) return null;
-  return data as User;
+  return data as Profile;
 }
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [unreachable, setUnreachable] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session }, error }) => {
       if (error) {
-        setUnreachable(true);
+        setHasError(true);
         setLoading(false);
         return;
       }
@@ -62,7 +62,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, loading, unreachable, setUser }}>
+    <UserContext.Provider value={{ user, loading, hasError, setUser }}>
       {children}
     </UserContext.Provider>
   );

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Flame, LogOut, BarChart2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useUser } from "@/context/UserContext";
-import { User, Goal } from "@/types";
+import { Profile, Goal } from "@/types";
 import { Session } from "@/types/timer";
 import { ReportModal } from "@/components/report/ReportModal";
 
@@ -35,7 +35,7 @@ export default function ProfilePage() {
   const params = useParams();
   const username = params.username as string;
 
-  const [profile, setProfile] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [goalBreakdown, setGoalBreakdown] = useState<GoalBreakdown[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,7 +56,7 @@ export default function ProfilePage() {
         .single();
 
       if (!p) { setLoading(false); return; }
-      setProfile(p as User);
+      setProfile(p as Profile);
 
       // Stats via security-definer function (works for any user)
       const { data: statsRows } = await supabase.rpc("get_user_stats", { p_user_id: p.id });

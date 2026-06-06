@@ -23,8 +23,10 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
       .select("*")
       .eq("user_id", user.id)
       .order("started_at", { ascending: false })
-      .then(({ data }) => { if (data) setSessions(data as Session[]); })
-      .catch(console.error);
+      .then(({ data, error }) => {
+        if (error) console.error(error);
+        if (data) setSessions(data as Session[]);
+      });
   }, [isOpen, user]);
 
   return (

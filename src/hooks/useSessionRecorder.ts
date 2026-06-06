@@ -16,7 +16,6 @@ export const useSessionRecorder = () => {
     lastResumedAtRef.current = now;
     accumulatedMsRef.current = 0;
     overtimeStartRef.current = null;
-    console.log(`[recorder] start: ${mode}`);
   }, []);
 
   const onTimerPause = useCallback(() => {
@@ -64,10 +63,7 @@ export const useSessionRecorder = () => {
       overtimeStartRef.current = null;
       accumulatedMsRef.current = 0;
 
-      console.log("[recorder] save:", record);
-
-      const { error } = await supabase.from("sessions").insert(record);
-      if (error) console.error("[recorder] failed:", error);
+      await supabase.from("sessions").insert(record);
     },
     []
   );

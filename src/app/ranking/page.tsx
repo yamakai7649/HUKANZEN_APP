@@ -36,9 +36,11 @@ export default function RankingPage() {
     if (!user) return;
     supabase
       .rpc("get_weekly_ranking")
-      .then(({ data }) => { if (data) setRanking(data as RankEntry[]); })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+      .then(({ data, error }) => {
+        if (error) console.error(error);
+        if (data) setRanking(data as RankEntry[]);
+        setLoading(false);
+      });
   }, [user]);
 
   if (authLoading || !user) return null;
